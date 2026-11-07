@@ -416,18 +416,18 @@ func getNewOverlayToken(w http.ResponseWriter, r *http.Request) {
 // }
 
 func getOverlay(w http.ResponseWriter, r *http.Request) {
-	channelId := r.PathValue("channel_id")
-	broadcaster, err := GetBroadcasterByID(channelId)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// channelId := r.PathValue("channel_id")
+	// broadcaster, err := GetBroadcasterByID(channelId)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
 
-	overlayToken := r.PathValue("overlay_token")
-	if broadcaster.OverlayToken != overlayToken {
-		http.Error(w, "invalid overlay token", http.StatusInternalServerError)
-		return
-	}
+	// overlayToken := r.PathValue("overlay_token")
+	// if broadcaster.OverlayToken != overlayToken {
+	// 	http.Error(w, "invalid overlay token", http.StatusInternalServerError)
+	// 	return
+	// }
 
 	tmpl, err := template.ParseFiles("./static/html/unbox.html")
 	if err != nil {

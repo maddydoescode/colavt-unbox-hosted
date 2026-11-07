@@ -41,7 +41,7 @@ func init() {
 	// }
 
 	dbUrl := os.Getenv("DATABASE_URL")
-	dbInitSql := os.Getenv("DATABASE_INIT_SQL")
+	// dbInitSql := os.Getenv("DATABASE_INIT_SQL")
 	clientId := os.Getenv("OAUTH2_CLIENT_ID")
 	clientSecret := os.Getenv("OAUTH2_CLIENT_SECRET")
 	jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
@@ -65,7 +65,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	b, err = os.ReadFile(dbInitSql)
+	b, err = os.ReadFile("./db/init.sql")
 	if err != nil {
 		log.Fatal(err)
 	}
