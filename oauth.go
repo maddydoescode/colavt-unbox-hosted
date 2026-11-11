@@ -79,13 +79,6 @@ func callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	overlayToken, err := UpdateOverlayTokenForID(broadcaster.UserID)
-	if err != nil {
-		http.Error(w, "check logs", http.StatusInternalServerError)
-		log.Printf("error update overlay: %v\n", err)
-		return
-	}
-
-	fmt.Fprint(w, "set your browser source to: https://colavt-unbox.coolify.maddy.fyi/overlay/"+broadcaster.UserID+"/"+overlayToken+"\nauthentication done, close this popup to continue")
-
+	// TODO: more programmatic, we also get this in the live-config
+	fmt.Fprint(w, "authentication done, close this popup to continue")
 }

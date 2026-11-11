@@ -14,7 +14,7 @@ import (
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joeyak/go-twitch-eventsub"
+	"github.com/joeyak/go-twitch-eventsub/v3"
 	"golang.org/x/oauth2"
 )
 
@@ -51,6 +51,13 @@ func NewOverlayConn(conf *oauth2.Config, conn *websocket.Conn) (*OverlayConn, er
 		return nil, err
 	}
 
+	// get reward id from db and enable reward
+	rewardId, err := overlayConn.getBroadcasterRewardId()
+	if err != nil {
+		return nil, err
+	}
+	overlayConn.broadcaster.RewardID = rewardId
+
 	overlayConn.redemptions = NewRedemptions(overlayConn.ctx)
 
 	err = overlayConn.setupEventSubService()
@@ -78,6 +85,8 @@ func (c *OverlayConn) callback(event twitch.EventChannelChannelPointsCustomRewar
 		// overlayConn.cancel()
 		return
 	}
+
+	println("trying to write to /ws")
 
 	err = wsjson.Write(c.ctx, c.conn, struct {
 		Items     []Item `json:"items"`
@@ -233,6 +242,8 @@ func (c *OverlayConn) createTwitchClient(conf *oauth2.Config) error {
 
 func (c *OverlayConn) getBroadcasterRewardId() (string, error) {
 	if c.broadcaster.RewardID != "" {
+		log.Printf("eventsub.rewardid: found existing reward: %s\n", c.broadcaster.RewardID)
+
 		// enable existing custom reward
 		call := c.client.ChannelPoints.Rewards.Modify(c.broadcaster.RewardID, c.broadcaster.UserID)
 		call.IsEnabled(true)
@@ -248,6 +259,8 @@ func (c *OverlayConn) getBroadcasterRewardId() (string, error) {
 
 	// TODO: check if Unbox Item reward exists (title exists already)
 	// TODO: custom fields for the channel point instead of hardcoded
+	log.Println("eventsub.rewardid: creating new reward")
+
 	call := c.client.ChannelPoints.Rewards.Insert(c.broadcaster.UserID, "Unbox Item", 1)
 	rewards, err := call.Do(c.ctx)
 	if err != nil {
@@ -279,22 +292,12 @@ func (c *OverlayConn) getBroadcasterDetails() error {
 	if err != nil {
 		return err
 	}
-
-	// get reward id from db and enable reward
-	rewardId, err := c.getBroadcasterRewardId()
-	if err != nil {
-		return err
-	}
-	broadcaster.RewardID = rewardId
 	c.broadcaster = broadcaster
 
 	return nil
 }
 
 func (c *OverlayConn) Heartbeat(interval time.Duration) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
@@ -303,21 +306,7 @@ func (c *OverlayConn) Heartbeat(interval time.Duration) {
 		if err != nil {
 			log.Printf("main: error ws heartbeat: %v\n", err)
 			c.conn.Close(websocket.StatusGoingAway, "failed to ping")
-			// c.cancel()
 			return
 		}
 	}
-
-	// for {
-	// 	select {
-	// 	case <-ticker.C:
-	// 		err := wsjson.Write(c.ctx, c.conn, "ping")
-	// 		if err != nil {
-	// 			log.Printf("main: error ws heartbeat: %v\n", err)
-	// 			c.conn.Close(websocket.StatusGoingAway, "failed to ping")
-	// 			// c.cancel()
-	// 			return
-	// 		}
-	// 	}
-	// }
 }

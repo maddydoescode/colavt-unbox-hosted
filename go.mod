@@ -1,30 +1,25 @@
-module github.com/allydoescode/unbox-inventory
+module colavt-unbox
 
-go 1.27.0
+go 1.27.4
 
 require (
 	github.com/adeithe/go-twitch v0.4.2
-	github.com/coder/websocket v1.8.15
+	github.com/coder/websocket v1.8.12
 	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/joeyak/go-twitch-eventsub v1.0.0
-	github.com/joho/godotenv v1.5.1
-	golang.org/x/oauth2 v0.36.0
-	modernc.org/sqlite v1.58.0
+	github.com/joeyak/go-twitch-eventsub/v3 v3.0.1
+	golang.org/x/oauth2 v0.38.0
+	modernc.org/sqlite v1.62.0
 )
 
 require (
-	github.com/bwmarrin/snowflake v0.3.0 // indirect
-	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/securecookie v1.1.2 // indirect
-	github.com/gorilla/sessions v1.4.0 // indirect
-	github.com/klauspost/compress v1.10.3 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
-	github.com/ncruces/go-strftime v1.0.0 // indirect
+	github.com/ncruces/go-strftime v1.1.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	modernc.org/libc v1.75.6 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	modernc.org/libc v1.80.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
-	nhooyr.io/websocket v1.8.7 // indirect
 )

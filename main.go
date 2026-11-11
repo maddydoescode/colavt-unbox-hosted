@@ -8,10 +8,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/twitch"
 	_ "modernc.org/sqlite"
@@ -35,10 +37,10 @@ var twitchExtOwnerId string
 func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	dbUrl := os.Getenv("DATABASE_URL")
 	// dbInitSql := os.Getenv("DATABASE_INIT_SQL")
@@ -135,16 +137,16 @@ func main() {
 	// tlsCertPath := os.Getenv("TLS_CERTIFICATE_PATH")
 	// tlsKeyPath := os.Getenv("TLS_KEY_PATH")
 
-	// err := http.ListenAndServeTLS("localhost:8080", tlsCertPath, tlsKeyPath, wrappedMux)
-	err := http.ListenAndServe("0.0.0.0:8080", wrappedMux)
+	err := http.ListenAndServeTLS("0.0.0.0:8080", "certs/server.crt", "certs/server.key", wrappedMux)
+	// err := http.ListenAndServe("0.0.0.0:8080", wrappedMux)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func chain(h http.Handler, m ...func(http.Handler) http.HandlerFunc) http.Handler {
-	for i := len(m) - 1; i >= 0; i-- {
-		h = m[i](h)
+	for _, f := range slices.Backward(m) {
+		h = f(h)
 	}
 	return h
 }

@@ -12,7 +12,7 @@ const tickSound = new Audio("/static/mp3/tick.mp3")
 let generatedItems = [];
 let animationFrameId = 0;
 let isSpinning = false;
-let autoCloseTimeoutId = null; 
+let autoCloseTimeoutId = null;
 
 let itemPool = []
 let userLogin = ""
@@ -20,6 +20,8 @@ let winningItemJson = ""
 
 // websocket
 var heartbeatTimer
+
+import { config } from "./config.js";
 
 function refreshHeartbeat() {
   clearTimeout(heartbeatTimer)
@@ -30,9 +32,7 @@ function refreshHeartbeat() {
   }, 6000)
 }
 
-const url = `https://colavt-unbox.coolify.maddy.fyi/ws`
-console.log(url)
-const ws = new WebSocket(url)
+const ws = new WebSocket(config.wsUrl)
 ws.addEventListener("open", ev => {
   console.log(`ws open: ${ev}`)
   let id = window.location.pathname.split("/")[2]
@@ -42,16 +42,15 @@ ws.addEventListener("close", ev => {
   console.log(`ws close: ${ev}`)
 })
 ws.addEventListener("message", ev => {
-  // console.log(`ws message: ${ev.data}`)
-  if (JSON.parse(ev.data) == "ping") {
-    console.log("ws message: received ping")
+  let data = JSON.parse(ev.data)
+
+  if (data == "ping") {
+    console.log("ws message: ping")
     refreshHeartbeat()
   } else {
-    console.log("not ping")
-    let data = JSON.parse(ev.data)
+    console.log("ws message: not ping")
     itemPool = data.items
     userLogin = data.user_login
-    console.log(itemPool)
     triggerUnboxing()
   }
 })
@@ -83,7 +82,7 @@ function populateTape() {
   spinnerTape.innerHTML = '';
   generatedItems = [];
   spinnerTape.style.transform = 'translateX(0px)';
-  spinnerTicker.style.transform = 'rotate(0deg)'; 
+  spinnerTicker.style.transform = 'rotate(0deg)';
 
   let forcedItemObj = null;
   if (SPINNER_CONFIG.forcedWinner) {
@@ -97,21 +96,21 @@ function populateTape() {
     } else {
       selectedItem = getRandomItemByRarity();
     }
-    
+
     generatedItems.push(selectedItem);
 
     const card = document.createElement('div');
     card.className = `item-card ${selectedItem.rarity}`;
-    
+
     // UPDATED HTML TEMPLATE: Swapped old .item-icon container for a crisp image tag
-    let imageUrl = `https://colavt-unbox.coolify.maddy.fyi/${selectedItem.image_url}`
+    let imageUrl = `${config.imgUrl}/${selectedItem.image_url}`
     card.innerHTML = `
       <img class="item-card-image" src="${imageUrl}" alt="${selectedItem.name}">
       <div class="item-name">${selectedItem.name}</div>
     `;
     spinnerTape.appendChild(card);
   }
-  
+
   document.documentElement.style.setProperty('--dynamic-glow', 'rgba(156, 39, 176, 0.2)');
   document.documentElement.style.setProperty('--dynamic-glow-solid', 'rgba(156, 39, 176, 0.5)');
 }
@@ -126,7 +125,7 @@ function startUnboxing() {
   document.body.classList.add('cinematic-dim');
 
   unboxingWrapper.classList.add('show-structure');
-  void unboxingWrapper.offsetHeight; 
+  void unboxingWrapper.offsetHeight;
 
   const targetItemOffset = SPINNER_CONFIG.winningIndex * SPINNER_CONFIG.cardWidth;
   const maxWiggleRange = SPINNER_CONFIG.cardWidth - 40;
@@ -134,10 +133,10 @@ function startUnboxing() {
 
   const totalDistance = targetItemOffset + innerCardVariation;
   const totalAnimationDuration = SPINNER_CONFIG.cruiseDuration + SPINNER_CONFIG.slowdownDuration;
-  
-  const slopeMultiplier = SPINNER_CONFIG.startupAggression; 
+
+  const slopeMultiplier = SPINNER_CONFIG.startupAggression;
   const velocityRatio = (slopeMultiplier * SPINNER_CONFIG.cruiseDuration) / SPINNER_CONFIG.slowdownDuration;
-  
+
   const decelerateDistance = totalDistance / (1 + velocityRatio);
   const cruiseDistance = totalDistance - decelerateDistance;
   const topSpeed = cruiseDistance / SPINNER_CONFIG.cruiseDuration;
@@ -155,23 +154,23 @@ function startUnboxing() {
     }
 
     let currentX = 0;
-    let currentVelocity = 0; 
+    let currentVelocity = 0;
 
     if (elapsed < SPINNER_CONFIG.cruiseDuration) {
       currentX = topSpeed * elapsed;
       currentVelocity = topSpeed;
     } else if (elapsed < totalAnimationDuration) {
       const t = (elapsed - SPINNER_CONFIG.cruiseDuration) / SPINNER_CONFIG.slowdownDuration;
-      const easeOutCustom = 1 - Math.pow(1 - t, SPINNER_CONFIG.startupAggression); 
+      const easeOutCustom = 1 - Math.pow(1 - t, SPINNER_CONFIG.startupAggression);
       currentX = cruiseDistance + (decelerateDistance * easeOutCustom);
-      
-      currentVelocity = (decelerateDistance / SPINNER_CONFIG.slowdownDuration) * 
+
+      currentVelocity = (decelerateDistance / SPINNER_CONFIG.slowdownDuration) *
                         SPINNER_CONFIG.startupAggression * Math.pow(1 - t, SPINNER_CONFIG.startupAggression - 1);
     } else {
       currentX = totalDistance;
       spinnerTape.style.transform = `translateX(${-currentX}px)`;
       spinnerTicker.style.transform = 'rotate(0deg)';
-      
+
       const finalWinnerItem = generatedItems[SPINNER_CONFIG.winningIndex];
       showPrize(finalWinnerItem);
       return;
@@ -181,7 +180,7 @@ function startUnboxing() {
 
     const baselineShift = (SPINNER_CONFIG.cardWidth / 2) - innerCardVariation;
     const currentCardIndex = Math.floor((currentX + baselineShift) / SPINNER_CONFIG.cardWidth);
-    
+
     if (currentCardIndex !== lastCardPassed && currentCardIndex >= 0 && currentCardIndex < generatedItems.length) {
       const relativeSpeedModifier = currentVelocity / topSpeed;
       tickSound.cloneNode().play()
@@ -194,17 +193,17 @@ function startUnboxing() {
         document.documentElement.style.setProperty('--dynamic-glow-solid', colorScheme.solid);
       }
 
-      const bendAngle = Math.min(currentVelocity * SPINNER_CONFIG.tickerWiggleIntensity, SPINNER_CONFIG.maxWiggleAngle); 
+      const bendAngle = Math.min(currentVelocity * SPINNER_CONFIG.tickerWiggleIntensity, SPINNER_CONFIG.maxWiggleAngle);
       spinnerTicker.style.transform = `rotate(${-bendAngle}deg)`;
 
       if (tickerResetTimeout) clearTimeout(tickerResetTimeout);
       const adaptiveRecoveryTime = Math.max(20, 45 * relativeSpeedModifier);
-      
+
       tickerResetTimeout = setTimeout(() => {
         if (isSpinning) {
           spinnerTicker.style.transform = 'rotate(0deg)';
         }
-      }, adaptiveRecoveryTime); 
+      }, adaptiveRecoveryTime);
     }
 
     animationFrameId = requestAnimationFrame(animate);
@@ -220,7 +219,7 @@ function showPrize(item) {
   // Update frameless field contents
   document.getElementById('revealRarity').innerText = item.rarity;
   document.getElementById('revealRarity').style.color = `var(--${item.rarity})`;
-  
+
   let imageUrl = `${window.location.protocol}//${window.location.host}/${item.image_url}`
   document.getElementById('revealIcon').innerHTML = `<img class="reveal-prize-image" src="${imageUrl}" alt="${item.name}">`;
 
@@ -252,7 +251,7 @@ function showPrize(item) {
 
 function closeModal() {
   if (autoCloseTimeoutId) clearTimeout(autoCloseTimeoutId);
-  
+
   revealModal.classList.remove('active');
   unboxingWrapper.classList.remove('fade-in');
 
@@ -261,7 +260,7 @@ function closeModal() {
 
   setTimeout(() => {
     unboxingWrapper.classList.remove('show-structure');
-    unboxingWrapper.classList.remove('hide-spinner'); 
+    unboxingWrapper.classList.remove('hide-spinner');
     if (spinBtn) spinBtn.disabled = false;
     isSpinning = false;
 
@@ -275,15 +274,15 @@ function triggerUnboxing(forcedItemName=null) {
   if (forcedItemName) {
     SPINNER_CONFIG.forcedWinner = forcedItemName;
   }
-  
+
   if (autoCloseTimeoutId) clearTimeout(autoCloseTimeoutId);
-  
+
   unboxingWrapper.classList.remove('fade-in');
   unboxingWrapper.classList.remove('show-structure');
   unboxingWrapper.classList.remove('hide-spinner'); // Ensure layout state is clean
   document.body.classList.remove('cinematic-dim'); // Wipe dim states on remote re-triggers
   revealModal.classList.remove('active');
-  
+
   setTimeout(() => {
     startUnboxing();
   }, 50);

@@ -133,7 +133,7 @@ function animate() {
 async function main() {
     for (let i = 0; i < data.item_sequence.length; i++) {
         const item = data.item_sequence[i];
-        
+
         div = document.createElement("div")
         div.style.backgroundImage = `url("/${item.image_url}")`
 
@@ -152,7 +152,7 @@ async function main() {
 
         div.style.borderBottom = "20px solid rgba(" + ans + ",0.5)"
 
-        // picked item  
+        // picked item
         if (i == 78) {
             itemUserSpan.innerText = data.user_login
             itemNameSpan.innerText = item.name

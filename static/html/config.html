@@ -19,51 +19,6 @@
         </div>
 
         <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
-        <script>
-            function oauth2popup() {
-                let w = window.open("https://colavt-unbox.coolify.maddy.fyi/auth/authorize", "oauth2 login", "width=600,height=300")
-                let t = setInterval(() => {
-                    if (w.closed) {
-                        clearInterval(t)
-                        window.location.reload()
-                    }
-                }, 500)
-            }
-            async function request(method, route, token, data=null) {
-                const url = `https://colavt-unbox.coolify.maddy.fyi/api/${route}`
-                const response = await fetch(url, {
-                    method: method,
-                    mode: "cors",
-                    headers: {"Authorization": `Bearer ${token}`},
-                    body: data
-                })
-
-                let json = await response.json()
-                return json
-            }
-
-            window.Twitch.ext.onAuthorized(auth => {
-                console.log(auth)
-
-                let authLink = document.querySelector("#auth-link")
-                let content = document.querySelector("#content")
-
-                request("GET", "broadcasters", auth.token)
-                .then(json => {
-                    console.log(json)
-                    if (json.user_id == "") {
-                        authLink.style.display = "block"
-                    } else {
-                        content.style.display = "block"
-                    }
-                })
-                .catch(error => console.error)
-
-            })
-
-            window.Twitch.ext.onContext((context) => {
-                document.body.classList.add(`${context.theme}-theme`)
-            });
-        </script>
+        <script src="/static/js/oauth2.js"></script>
     </body>
 </html>

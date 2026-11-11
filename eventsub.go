@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/adeithe/go-twitch/api"
-	"github.com/joeyak/go-twitch-eventsub"
+	"github.com/joeyak/go-twitch-eventsub/v3"
 )
 
 type EventSubService struct {
@@ -127,15 +127,15 @@ func (e *EventSubService) Add(broadcaster *Broadcaster, hc *http.Client, client 
 		return fmt.Errorf("could not add to eventsub: already stored in ids")
 	}
 
-	// enable existing custom reward
-	call := client.ChannelPoints.Rewards.Modify(broadcaster.RewardID, broadcaster.UserID)
-	call.IsEnabled(true)
+	// // enable existing custom reward
+	// call := client.ChannelPoints.Rewards.Modify(broadcaster.RewardID, broadcaster.UserID)
+	// call.IsEnabled(true)
 
-	_, err = call.Do(context.Background())
-	if err != nil {
-		log.Printf("clean: error twitch api: %v\n", err)
-		return err
-	}
+	// _, err = call.Do(context.Background())
+	// if err != nil {
+	// 	log.Printf("clean: error twitch api: %v\n", err)
+	// 	return err
+	// }
 
 	return nil
 }
