@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/twitch"
 	_ "modernc.org/sqlite"
@@ -37,10 +36,10 @@ var twitchExtOwnerId string
 func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	dbUrl := os.Getenv("DATABASE_URL")
 	// dbInitSql := os.Getenv("DATABASE_INIT_SQL")
