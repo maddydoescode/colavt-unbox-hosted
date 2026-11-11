@@ -136,8 +136,8 @@ func main() {
 	// tlsCertPath := os.Getenv("TLS_CERTIFICATE_PATH")
 	// tlsKeyPath := os.Getenv("TLS_KEY_PATH")
 
-	err := http.ListenAndServeTLS("0.0.0.0:8080", "certs/server.crt", "certs/server.key", wrappedMux)
-	// err := http.ListenAndServe("0.0.0.0:8080", wrappedMux)
+	// err := http.ListenAndServeTLS("0.0.0.0:8080", "certs/server.crt", "certs/server.key", wrappedMux)
+	err := http.ListenAndServe("0.0.0.0:8080", wrappedMux)
 	if err != nil {
 		log.Fatal(err)
 	}
