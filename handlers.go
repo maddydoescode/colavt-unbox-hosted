@@ -276,6 +276,32 @@ func getBroadcaster(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func deleteBroadcaster(w http.ResponseWriter, r *http.Request) {
+	channelId, ok := r.Context().Value(ChannelIdKey).(string)
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	isBroadcaster, ok := r.Context().Value(IsBroadcasterKey).(bool)
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !isBroadcaster {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	err := DeleteBroadcasterByID(channelId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 // func getUser(w http.ResponseWriter, r *http.Request) {
 // 	userId, ok := r.Context().Value(UserIdKey).(string)
 // 	if !ok {

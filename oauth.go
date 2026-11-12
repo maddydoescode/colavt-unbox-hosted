@@ -79,6 +79,5 @@ func callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: more programmatic, we also get this in the live-config
 	fmt.Fprint(w, "authentication done, close this popup to continue")
 }
