@@ -21,7 +21,7 @@ let winningItemJson = ""
 // websocket
 var heartbeatTimer
 
-import { config } from "./config.js";
+import { config } from "../config.js";
 
 function refreshHeartbeat() {
   clearTimeout(heartbeatTimer)

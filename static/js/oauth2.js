@@ -1,4 +1,4 @@
-import { config } from "./config.js"
+import { config } from "../config.js"
 
 function oauth2popup() {
     let w = window.open(`${config.authUrl}/authorize`, "oauth2 login", "width=600,height=300")
